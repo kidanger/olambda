@@ -68,6 +68,10 @@ static Image run_octave(const std::string& prog, std::vector<Image> images)
             int h = m.rows();
             int d = m.ndims() == 3 ? m.pages() : 1;
             size_t size = w * h * d;
+            if (size == 1) {
+                printf("%f\n", m(0,0,0));
+                return Image(0,0,0,0);
+            }
             float* data = (float*) malloc(sizeof(float) * size);
             float* ptrdata = data;
             for (int y = 0; y < h; y++) {
