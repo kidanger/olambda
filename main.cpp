@@ -25,6 +25,7 @@ static Image run_octave(const std::string& prog, std::vector<Image> images)
         app->initialize_history(false);
         app->initialize();
         app->interactive(false);
+        octave::source_file("~/.octaverc", "", false /*verbose*/, false /* required*/);
     }
 
     try {
