@@ -1,4 +1,4 @@
-#!/usr/bin/env -S octave-cli
+#!/usr/bin/env octave-cli
 
 arg_list = argv();
 n = nargin;
