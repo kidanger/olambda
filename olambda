@@ -48,7 +48,7 @@ r = func(imgs{:});
 
 % print or save the result
 if numel(r) == 1
-    fprintf("%f\n", y);
+    fprintf("%f\n", r);
 else
     iio_write(output, r);
 end
