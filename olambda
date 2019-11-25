@@ -3,6 +3,18 @@
 arg_list = argv();
 n = nargin;
 
+% parse '-p' to print the output in the terminal instead of writing to file
+print = false;
+for i=1:n
+    if strcmp(arg_list{i}, '-p')
+        print = true;
+        for j=i:n-1, arg_list{j} = arg_list{j+1}; end
+        arg_list{n} = [];
+        n = n - 1;
+        break;
+    end
+end
+
 % parse '-o' for the output filename
 output = '-';
 for i=1:n
@@ -47,8 +59,8 @@ func = str2func(prog);
 r = func(imgs{:});
 
 % print or save the result
-if numel(r) == 1
-    fprintf("%f\n", r);
+if print || ischar(r) || numel(r) == 1
+    disp(r);
 else
     iio_write(output, r);
 end
