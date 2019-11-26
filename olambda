@@ -1,5 +1,12 @@
 #!/usr/bin/env octave-cli
 
+if exist('iio_read') ~= 3 || exist('iio_write') ~= 3
+    fprintf(2, 'olambda fatal error: could not find ''iio_read'' and/or ''iio_write''.\n');
+    fprintf(2, 'Please check your installation of iio''s octave bindings.\n');
+    fprintf(2, '(you should download https://github.com/mnhrdt/iio/tree/master/contrib/octave and add the mex files to your octave path using ''$HOME/.octaverc''.)\n');
+    exit(1);
+end
+
 arg_list = argv();
 n = nargin;
 
