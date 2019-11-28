@@ -15,8 +15,18 @@ print = false;
 for i=1:n
     if strcmp(arg_list{i}, '-p')
         print = true;
-        for j=i:n-1, arg_list{j} = arg_list{j+1}; end
-        arg_list{n} = [];
+        arg_list(i, :) = [];
+        n = n - 1;
+        break;
+    end
+end
+
+% parse '-h' to print the usage
+help = false;
+for i=1:n
+    if strcmp(arg_list{i}, '-h')
+        help = true;
+        arg_list(i, :) = [];
         n = n - 1;
         break;
     end
@@ -33,13 +43,18 @@ for i=1:n
     end
 end
 
+% display usage if needed or asked
+if n == 0 || help
+    fprintf(2, 'usage: olambda [-h] [-p] [-o <output>] [<images>...] <program>\n');
+    return;
+end
+
 % parse the octave code
 prog = arg_list{n};
 arg_list(n, :) = [];
 n = n - 1;
 
 % read the images
-x = iio_read(arg_list{1});
 imgs = {};
 for i=1:n
     imgs{i} = iio_read(arg_list{i});
