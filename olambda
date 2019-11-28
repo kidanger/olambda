@@ -22,10 +22,10 @@ for i=1:n
 end
 
 % parse '-h' to print the usage
-help = false;
+showhelp = false;
 for i=1:n
     if strcmp(arg_list{i}, '-h')
-        help = true;
+        showhelp = true;
         arg_list(i, :) = [];
         n = n - 1;
         break;
@@ -44,7 +44,7 @@ for i=1:n
 end
 
 % display usage if needed or asked
-if n == 0 || help
+if n == 0 || showhelp
     fprintf(2, 'usage: olambda [-h] [-p] [-o <output>] [<images>...] <program>\n');
     return;
 end
