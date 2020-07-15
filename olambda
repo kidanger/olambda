@@ -56,7 +56,7 @@ end
 
 % display usage if needed or asked
 if n == 0 || showhelp
-    fprintf(2, 'usage: olambda [-h] [-v] [-p] [-o <output>] [<images>...] <program>\n');
+    fprintf(2, 'usage: olambda [-h] [-v] [-p] [-o <output>] [<images>...] <statements;expression>\n');
     return;
 end
 
@@ -80,29 +80,25 @@ for i=1:n
     end
 end
 
-% decorate the octave code with @(x, y, ...)
-preprog = '@(';
+preprog = '';
 for i=1:n
     if i <= 3
         c = 'x' + i - 1;
     else
         c = 'a' + i - 1 - 3;
     end
-    preprog = [preprog char(c)];
-    if i != n
-        preprog = [preprog ','];
-    end
+    preprog = [preprog char(c) '=imgs{' int2str(i) '};'];
 end
-preprog = [preprog ') '];
-prog = [preprog prog];
+prog = [preprog prog ';r=ans;'];
 
-% run the code on the images
-func = str2func(prog);
-r = func(imgs{:});
+% run the code on the image
+% the result is saved as the variable r
+eval(prog);
+
 if verbose
     fprintf(2, 'running ''%s''\n', prog);
-    fprintf(2, 'result: %dx%dx%d %s\n',
-        size(r,1), size(r,2), size(r,3), class(r));
+    fprintf(2, ['result: %d' repmat('x%d', [1, length(size(r))-1]) ' %s\n'],
+        size(r), class(r));
 end
 
 % print or save the result
