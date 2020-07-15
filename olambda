@@ -56,7 +56,7 @@ end
 
 % display usage if needed or asked
 if n == 0 || showhelp
-    fprintf(2, 'usage: olambda [-h] [-v] [-p] [-o <output>] [<images>...] <program>\n');
+    fprintf(2, 'usage: olambda [-h] [-v] [-p] [-o <output>] [<images>...] <statements;expression>\n');
     return;
 end
 
@@ -77,24 +77,45 @@ for i=1:n
     end
 end
 
-% decorate the octave code with @(x, y, ...)
-preprog = '@(';
+preprog = '';
 for i=1:n
-    preprog = [preprog imgs_names(i)];
-    if i != n
-        preprog = [preprog ','];
-    end
+    preprog = [preprog imgs_names(i) '=imgs{' int2str(i) '};'];
 end
-preprog = [preprog ') '];
-prog = [preprog prog];
+prog = [preprog prog ';']; % two semicolons are ok
 
-% run the code on the images
-func = str2func(prog);
-r = func(imgs{:});
+% run the code on the image
+% the result is saved as the variable r
+eval(prog);
+
+% ans is not defined in two cases:
+% 1. All results are assigned to a variable --> assign last assigned one to r
+% 2. The statement is a variable name --> assign this variable to r
+if ~exist('ans','var')
+    prg = prog;
+    prg(regexp(prg, ' ')) = [];  % remove all whitespaces
+    prg = [';' prg];             % add leading semicolon
+    [~,~,~,match] = regexp(prg, ';[a-zA-Z][a-zA-Z0-9]*;+$');
+    if isempty(match)
+        % last statement is not a variable name, so use last assignment
+        [~,~,~,match] = regexp(prg, ';[a-zA-Z][a-zA-Z0-9]*=');
+    end
+    if isempty(match)
+        fprintf(2,'Could not identify the output variable.\n');
+        return
+    end
+    lastvar = match{end}(2:end-1);
+    if verbose
+        fprintf(2,'lastvar: %c\n', lastvar);
+    end
+    eval(['r=' lastvar ';']);
+else
+    r = ans;
+end
+
 if verbose
     fprintf(2, 'running ''%s''\n', prog);
-    fprintf(2, 'result: %dx%dx%d %s\n',
-        size(r,1), size(r,2), size(r,3), class(r));
+    fprintf(2, ['result: %d' repmat('x%d', [1, length(size(r))-1]) ' %s\n'],
+        size(r), class(r));
 end
 
 % print or save the result
