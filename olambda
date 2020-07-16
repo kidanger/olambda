@@ -88,27 +88,22 @@ prog = [preprog prog ';']; % two semicolons are ok
 eval(prog);
 
 % ans is not defined in two cases:
-% 1. All results are assigned to a variable
-%    In this case, assign to r the last assigned variable
-% 2. The statement is a variable name
-%    In this case, assign it to r.
+% 1. All results are assigned to a variable --> assign last assigned one to r
+% 2. The statement is a variable name --> assign this variable to r
 if ~exist('ans','var')
-    laststm = prog;
-    laststm(regexp(laststm, ' ')) = [];  % remove all whitespaces
-    while true                           % remove all duplicated semicolons
-        pos = regexp(laststm, ';;');
-        if ~isempty(pos), laststm(pos) = []; else, break; end
+    prg = prog;
+    prg(regexp(prg, ' ')) = [];  % remove all whitespaces
+    prg = [';' prg];             % add leading semicolon
+    [~,~,~,match] = regexp(prg, ';[a-zA-Z][a-zA-Z0-9]*;$');
+    if isempty(match)
+        % last statement is not a variable name, so use last assignment
+        [~,~,~,match] = regexp(prg, ';[a-zA-Z][a-zA-Z0-9]*=');
     end
-    laststm = [';' laststm];             % add leading semicolon
-    [~,~,~,match] = regexp(laststm, ';[a-zA-Z][a-zA-Z0-9]*;$');
-    if ~isempty(match)                   % last statement is a variable name
-        lastvar = match{end}(2:end);
-    else                                 % use last assignment
-        [~,~,~,match] = regexp(laststm, ';[a-zA-Z][a-zA-Z0-9]*=');
-        if ~isempty(match)
-            lastvar = match{end}(2:end-1);
-        end
+    if isempty(match)
+        fprintf(2,'Could not identify the output variable.\n');
+        return
     end
+    lastvar = match{end}(2:end-1);
     if verbose
         fprintf(2,'lastvar: %c\n', lastvar);
     end
