@@ -71,8 +71,9 @@ imgs_names = ['x':'z', 'a':'w']; % we do not handle more than 26 input images
 for i=1:n
     imgs{i} = iio_read(arg_list{i});
     if verbose
-        fprintf(2, '%c=''%s'' (%dx%dx%d)\n', imgs_names(i), arg_list{i},
-            size(imgs{i},1), size(imgs{i},2), size(imgs{i},3));
+        fprintf(2, ['%c=''%s'' (%d' ...
+                    repmat('x%d', [1, length(size(imgs{i}))-1]) ')\n'], ...
+            imgs_names(i), arg_list{i}, size(imgs{i}));
     end
 end
 
