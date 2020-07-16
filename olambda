@@ -87,21 +87,28 @@ prog = [preprog prog ';']; % two semicolons are ok
 % the result is saved as the variable r
 eval(prog);
 
-% ans is not defined if either all results are assigned to a variable, or the
-% statment is not a calculation (e.g. 'x').
-% In this case, assign to r the last used variable.
-% For example 'x(1:2:end,1:2:end)'
+% ans is not defined in two cases:
+% 1. All results are assigned to a variable
+%    In this case, assign to r the last assigned variable
+% 2. The statement is a variable name
+%    In this case, assign it to r.
 if ~exist('ans','var')
-    lastvar = prog;
-    lastvar(regexp(lastvar, ' ')) = []; % remove all whitespaces
-    while true
-        pos = regexp(lastvar, ';;');
-        if ~isempty(pos), lastvar(pos+1) = []; else, break; end
+    laststm = prog;
+    laststm(regexp(laststm, ' ')) = [];  % remove all whitespaces
+    while true                           % remove all duplicated semicolons
+        pos = regexp(laststm, ';;');
+        if ~isempty(pos), laststm(pos) = []; else, break; end
     end
-    lastvar(regexp(lastvar, ';$')) = []; % remove last ';'
-    lastvar = [';' lastvar]; % add leading ';' for following command
-    pos = regexp(lastvar, ';'); pos = pos(end); % last ';'
-    lastvar = lastvar(pos+1);
+    laststm = [';' laststm];             % add leading semicolon
+    [~,~,~,match] = regexp(laststm, ';[a-zA-Z][a-zA-Z0-9]*;$');
+    if ~isempty(match)                   % last statement is a variable name
+        lastvar = match{end}(2:end);
+    else                                 % use last assignment
+        [~,~,~,match] = regexp(laststm, ';[a-zA-Z][a-zA-Z0-9]*=');
+        if ~isempty(match)
+            lastvar = match{end}(2:end-1);
+        end
+    end
     if verbose
         fprintf(2,'lastvar: %c\n', lastvar);
     end
