@@ -81,11 +81,34 @@ preprog = '';
 for i=1:n
     preprog = [preprog imgs_names(i) '=imgs{' int2str(i) '};'];
 end
-prog = [preprog prog ';r=ans;'];
+prog = [preprog prog ';']; % two semicolons are ok
 
 % run the code on the image
 % the result is saved as the variable r
 eval(prog);
+
+% ans is not defined if either all results are assigned to a variable, or the
+% statment is not a calculation (e.g. 'x').
+% In this case, assign to r the last used variable.
+% For example 'x(1:2:end,1:2:end)'
+if ~exist('ans','var')
+    lastvar = prog;
+    lastvar(regexp(lastvar, ' ')) = []; % remove all whitespaces
+    while true
+        pos = regexp(lastvar, ';;');
+        if ~isempty(pos), lastvar(pos+1) = []; else, break; end
+    end
+    lastvar(regexp(lastvar, ';$')) = []; % remove last ';'
+    lastvar = [';' lastvar]; % add leading ';' for following command
+    pos = regexp(lastvar, ';'); pos = pos(end); % last ';'
+    lastvar = lastvar(pos+1);
+    if verbose
+        fprintf(2,'lastvar: %c\n', lastvar);
+    end
+    eval(['r=' lastvar ';']);
+else
+    r = ans;
+end
 
 if verbose
     fprintf(2, 'running ''%s''\n', prog);
