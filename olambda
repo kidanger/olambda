@@ -87,12 +87,11 @@ end
 prog = [preprog prog ';']; % two semicolons are ok
 
 % run the code on the image
-% the result is saved as the variable r
 eval(prog);
 
 % ans is not defined in two cases:
-% 1. All results are assigned to a variable --> assign last assigned one to r
-% 2. The statement is a variable name --> assign this variable to r
+% 1. All results are assigned to a variable --> assign last assigned one to res
+% 2. The statement is a variable name --> assign this variable to res
 if ~exist('ans','var')
     prg = prog;
     prg(regexp(prg, ' ')) = [];  % remove all whitespaces
@@ -110,22 +109,22 @@ if ~exist('ans','var')
     if verbose
         fprintf(2,'lastvar: %c\n', lastvar);
     end
-    eval(['r=' lastvar ';']);
+    eval(['res=' lastvar ';']);
 else
-    r = ans;
+    res = ans;
 end
 
 if verbose
     fprintf(2, 'running ''%s''\n', prog);
-    fprintf(2, ['result: %d' repmat('x%d', [1, length(size(r))-1]) ' %s\n'],
-        size(r), class(r));
+    fprintf(2, ['result: %d' repmat('x%d', [1, length(size(res))-1]) ' %s\n'],
+        size(res), class(res));
 end
 
 % print or save the result
-if print || ischar(r) || numel(r) == 1
-    disp(r);
+if print || ischar(res) || numel(res) == 1
+    disp(res);
 else
-    iio_write(output, r);
+    iio_write(output, res);
 end
 
 % vim: ft=octave
