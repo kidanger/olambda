@@ -94,7 +94,7 @@ if ~exist('ans','var')
     prg = prog;
     prg(regexp(prg, ' ')) = [];  % remove all whitespaces
     prg = [';' prg];             % add leading semicolon
-    [~,~,~,match] = regexp(prg, ';[a-zA-Z][a-zA-Z0-9]*;$');
+    [~,~,~,match] = regexp(prg, ';[a-zA-Z][a-zA-Z0-9]*;+$');
     if isempty(match)
         % last statement is not a variable name, so use last assignment
         [~,~,~,match] = regexp(prg, ';[a-zA-Z][a-zA-Z0-9]*=');
