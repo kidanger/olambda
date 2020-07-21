@@ -1,5 +1,8 @@
 #!/usr/bin/env octave-cli
 
+% this is necessary when running 'pkg load images;' from the octaverc
+clear -v ans;
+
 if exist('iio_read') ~= 3 || exist('iio_write') ~= 3
     fprintf(2, 'olambda fatal error: could not find ''iio_read'' and/or ''iio_write''.\n');
     fprintf(2, 'Please check your installation of iio''s octave bindings.\n');
