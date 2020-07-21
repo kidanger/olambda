@@ -11,67 +11,67 @@ if exist('iio_read') ~= 3 || exist('iio_write') ~= 3
 end
 
 arg_list = argv();
-n = nargin;
+argc = nargin;
 
 % parse '-p' to print the output in the terminal instead of writing to file
 print = false;
-for i=1:n
+for i=1:argc
     if strcmp(arg_list{i}, '-p')
         print = true;
         arg_list(i, :) = [];
-        n = n - 1;
+        argc = argc - 1;
         break;
     end
 end
 
 % parse '-h' to print the usage
 showhelp = false;
-for i=1:n
+for i=1:argc
     if strcmp(arg_list{i}, '-h')
         showhelp = true;
         arg_list(i, :) = [];
-        n = n - 1;
+        argc = argc - 1;
         break;
     end
 end
 
 % parse '-v' for verbose mode
 verbose = false;
-for i=1:n
+for i=1:argc
     if strcmp(arg_list{i}, '-v')
         verbose = true;
         arg_list(i, :) = [];
-        n = n - 1;
+        argc = argc - 1;
         break;
     end
 end
 
 % parse '-o' for the output filename
 output = '-';
-for i=1:n
+for i=1:argc
     if strcmp(arg_list{i}, '-o') ~= 0
         output = arg_list{i+1};
         arg_list(i:i+1, :) = [];
-        n = n - 2;
+        argc = argc - 2;
         break;
     end
 end
 
 % display usage if needed or asked
-if n == 0 || showhelp
+if argc == 0 || showhelp
     fprintf(2, 'usage: olambda [-h] [-v] [-p] [-o <output>] [<images>...] <statements;expression>\n');
     return;
 end
 
 % parse the octave code
-prog = arg_list{n};
-arg_list(n, :) = [];
-n = n - 1;
+prog = arg_list{argc};
+arg_list(argc, :) = [];
+argc = argc - 1;
 
 % read the images
 imgs = {};
 imgs_names = ['x':'z', 'a':'w']; % we do not handle more than 26 input images
-for i=1:n
+for i=1:argc
     imgs{i} = iio_read(arg_list{i});
     if verbose
         fprintf(2, ['%c=''%s'' (%d' ...
@@ -81,7 +81,7 @@ for i=1:n
 end
 
 preprog = '';
-for i=1:n
+for i=1:argc
     preprog = [preprog imgs_names(i) '=imgs{' int2str(i) '};'];
 end
 prog = [preprog prog ';']; % two semicolons are ok
