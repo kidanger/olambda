@@ -90,11 +90,10 @@ preprog = '';
 for i=1:argc
     preprog = [preprog imgs_names(i) '=imgs{' int2str(i) '};'];
 end
-prog = regexprep(prog, '(\s|;)*$', ';');
-prog = [preprog prog];
+prog = regexprep([prog ';'], '(\s|;)*$', ';');
 
 % run the code on the image
-eval(prog);
+eval([preprog prog]);
 
 % ans is not defined in two cases:
 % 1. All results are assigned to a variable --> assign last assigned one to res
@@ -138,7 +137,7 @@ else
         otherwise
             iio_write(output, res);
     end
-    if verbose && exist('output', 'var')
+    if verbose
         fprintf(2, ['result saved to: ' output '\n']);
     end
 end
