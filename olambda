@@ -68,11 +68,17 @@ prog = arg_list{argc};
 arg_list(argc, :) = [];
 argc = argc - 1;
 
-% read the images
+% read the images or matrices stored in text files
 imgs = {};
 imgs_names = ['x':'z', 'a':'w']; % we do not handle more than 26 input images
 for i=1:argc
-    imgs{i} = iio_read(arg_list{i});
+    [fpath, fname, fext] = fileparts(arg_list{i});
+    switch fext
+        case {'.txt', '.mat'}
+            imgs{i} = load(arg_list{i});
+        otherwise
+            imgs{i} = iio_read(arg_list{i});
+    end
     if verbose
         fprintf(2, ['%c=''%s'' (%d' ...
                     repmat('x%d', [1, length(size(imgs{i}))-1]) ')\n'], ...
@@ -84,7 +90,8 @@ preprog = '';
 for i=1:argc
     preprog = [preprog imgs_names(i) '=imgs{' int2str(i) '};'];
 end
-prog = [preprog prog ';']; % two semicolons are ok
+prog = regexprep(prog, '(\s|;)*$', ';');
+prog = [preprog prog];
 
 % run the code on the image
 eval(prog);
@@ -121,10 +128,19 @@ if verbose
 end
 
 % print or save the result
-if print || ischar(res) || numel(res) == 1
+if strcmp(output,'-') && (print || ischar(res) || numel(res) == 1)
     disp(res);
 else
-    iio_write(output, res);
+    [fpath, fname, fext] = fileparts(output);
+    switch fext
+        case {'.txt', '.mat'}
+            save('-ascii', output, 'res');
+        otherwise
+            iio_write(output, res);
+    end
+    if verbose && exist('output', 'var')
+        fprintf(2, ['result saved to: ' output '\n']);
+    end
 end
 
 % vim: ft=octave
