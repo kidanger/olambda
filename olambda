@@ -107,8 +107,10 @@ if ~exist('ans','var')
         % last statement is not a variable name, so use last assignment
         [~,~,~,match] = regexp(prg, ';[a-zA-Z][a-zA-Z0-9]*=');
     end
-    if isempty(match)
-        fprintf(2,'Could not identify the output variable.\n');
+    if isempty(match) || ~exist(match{end}(2:end-1), 'var')
+        if verbose
+            fprintf(2,'Could not identify the output variable.\n');
+        end
         return
     end
     lastvar = match{end}(2:end-1);
