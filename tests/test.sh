@@ -20,6 +20,12 @@ it 'can manipulate images' && {
 # TODO: statements ending with an assignment
 # TODO: statements ending with an expression
 
+it 'does not return anything if there is no return variable' && {
+    r=$(run 'for i=1:2, disp(i); end;')
+    should_succeed
+    expect_var r to_be "1 2"
+}
+
 it 'outputs errors when something is wrong' && {
     r=$(run 'n')
     should_fail
