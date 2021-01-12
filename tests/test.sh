@@ -29,6 +29,5 @@ it 'does not return anything if there is no return variable' && {
 it 'outputs errors when something is wrong' && {
     r=$(run 'n')
     should_fail
-    expect_var r to_be "error: n undefined near line 1 column 1"
 }
 
