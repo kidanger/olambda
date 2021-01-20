@@ -1,0 +1,170 @@
+<!doctype html>
+
+<!--
+	This document is a "semi-literate" program.  To re-compute the
+	figures, run the script "build.sh" from inside the directory "f".
+	Note that you can change the source images (A, B, X, ...), but
+	they should be of a similar size or the layout will be broken.
+-->
+
+<title>olambda tutorial</title>
+<style>
+body {max-width: 91ex; margin-left:1em;}
+.gallery {position:relative;width:auto;height:400px}
+.gallery .index{padding:0;margin:0;width:11em;list-style:none}
+.gallery .index li{margin:0;padding:0}
+.gallery .index a{display:block;background-color:#eee;border:1px solid #fff;text-decoration:none;width:13em;padding:5px}
+.gallery .index a span{display:block;position:absolute;left:-9999px;top:0;padding-left:2em}
+.selsecond .index li:nth-child(2) a span{left:12em;z-index:99}
+.selsecond .index li:nth-child(2) a {font-weight:bold;}
+.selfirst .index li:first-child a span{left:12em;z-index:99}
+.selfirst .index li:first-child a {font-weight:bold;}
+.gallery .index a:hover{ border: 1px solid #888888;}
+.gallery .index a:hover span{left:12em;z-index:100}
+.gallery .index a span img{ }
+.gallery .index a span { white-space:nowrap; }
+.script {border:1px solid black;background-color:#fff;width:91ex;padding:1ex;}
+.sscript {border:1px solid black;background-color:#fff;width:91ex;padding:1ex;}
+.oscript {background-color:#ddd;width:91ex;padding:1ex;}
+</style>
+
+<h1>olambda tutorial</h1>
+
+		<p>
+		olambda is a single octave script designed for image manipulations.
+		It uses <a href=''>iio</a> to load and save images, and thus supports many image formats and can be piped from/to other programs.
+
+		This tutorial shows the versatility of olambda through the following points:
+		<ul>
+			<li>single image operations (filtering, tonecurve, resizing, FFT, ..)</li>
+			<li>multiple image operations (difference, channel composition)</li>
+			<li>reductions (mean/variance, PSNR) or getting information about the image (size)</li>
+			<li>simple calculator for the shell</li>
+		</ul>
+
+		Comparison with equivalent imscript programs are shown. Oftentimes the imscript programs provide shorter expressions for simple operations. However, olambda allows for more complex operations in a single call (e.g. take the modulus of the Fourier transform), whereas imscript programs would be combined with pipes.
+		Furthermore, in the specific case of plambda, olambda is significantly faster (and sometimes more readable).
+
+		<p>
+		The idea of olambda is also to be usable by anyone who knows bits of MATLAB/Octave.
+		The command line interface is straight forward and the user can directly use its knowledge of octave instead of learning how to use new tools.
+
+<h2>1. Single image</h2>
+
+<pre class="script">
+olambda A.png "imsmooth(x,3)" -o A_gaussian_3.png
+blur gaussian -s 3 A.png A_gaussian_3_imscript.png
+</pre>
+
+<div class="gallery selsecond" style="height:321">
+	<ul class="index">
+		<li><a>A.png<span><img src="f/A.png" /></span></a>
+		<li><a>A_gaussian_3.png<span><img src="f/A_gaussian_3.png" /></span></a>
+		<li><a>A_gaussian_3_imscript.png<span><img src="f/A_gaussian_3_imscript.png" /></span></a>
+	</ul>
+</div>
+
+<pre class="script">
+olambda A.png "x .^ 2.2" | qauto - A_tonemap.png
+plambda A.png "x 2.2 ^" | qauto - A_tonemap_imscript.png
+</pre>
+
+<div class="gallery selsecond" style="height:321">
+	<ul class="index">
+		<li><a>A.png<span><img src="f/A.png" /></span></a>
+		<li><a>A_tonemap.png<span><img src="f/A_tonemap.png" /></span></a>
+		<li><a>A_tonemap_imscript.png<span><img src="f/A_tonemap_imscript.png" /></span></a>
+	</ul>
+</div>
+
+<pre class="script">
+olambda A.png "x + randn(size(x)) * 30" -o A_addnoise.png
+plambda A.png "x randn randn randn join3 30 * +" -o A_addnoise_imscript.png
+</pre>
+
+<div class="gallery selsecond" style="height:321">
+	<ul class="index">
+		<li><a>A.png<span><img src="f/A.png" /></span></a>
+		<li><a>A_addnoise.png<span><img src="f/A_addnoise.png" /></span></a>
+		<li><a>A_addnoise_imscript.png<span><img src="f/A_addnoise_imscript.png" /></span></a>
+	</ul>
+</div>
+
+<pre class="script">
+olambda barb.png "imresize(x, 0.5)" -o barb_downsa_resize.png
+olambda barb.png "x(1:2:end,1:2:end,:)" -o barb_downsa.png
+downsa f 2 barb.png barb_downsa_imscript.png
+</pre>
+
+<div class="gallery selsecond" style="height:321">
+	<ul class="index">
+		<li><a>barb.png<span><img src="f/barb.png" /></span></a>
+		<li><a>barb_downsa_resize.png<span><img src="f/barb_downsa_resize.png" /></span></a>
+		<li><a>barb_downsa.png<span><img src="f/barb_downsa.png" /></span></a>
+		<li><a>barb_downsa_imscript.png<span><img src="f/barb_downsa_imscript.png" /></span></a>
+	</ul>
+</div>
+
+<pre class="script">
+downsa v 4 barb.png | olambda - "imresize(x,4)" -o barb_upsa_resize.png
+downsa v 4 barb.png | upsa 4 3 - barb_upsa_imscript.png
+</pre>
+
+<div class="gallery selsecond" style="height:572px">
+	<ul class="index">
+		<li><a>barb.png<span><img src="f/barb.png" /></span></a>
+		<li><a>barb_upsa_resize.png<span><img src="f/barb_upsa_resize.png" /></span></a>
+		<li><a>barb_upsa_imscript.png<span><img src="f/barb_upsa_imscript.png" /></span></a>
+	</ul>
+</div>
+
+<pre class="script">
+olambda barb.png "abs(fftshift(fft2(x)))" | qauto -p 1 - barb_fft.png
+fft 1 barb.png | fftshift | plambda vnorm | qauto -p 1 - barb_fft_imscript.png
+</pre>
+
+<div class="gallery selsecond" style="height:572px">
+	<ul class="index">
+		<li><a>barb.png<span><img src="f/barb.png" /></span></a>
+		<li><a>barb_fft.png<span><img src="f/barb_fft.png" /></span></a>
+		<li><a>barb_fft_imscript.png<span><img src="f/barb_fft_imscript.png" /></span></a>
+	</ul>
+</div>
+
+<h2>2. Multiple image operations</h2>
+
+<pre class="script">
+olambda {a,b}.jpg "abs(x - y)" -o ab_absdiff.png
+plambda {a,b}.jpg "- fabs" -o ab_absdiff_imscript.png
+</pre>
+
+<div class="gallery selsecond" style="height:321">
+	<ul class="index">
+		<li><a>a.jpg<span><img src="f/a.jpg" /></span></a>
+		<li><a>b.jpg<span><img src="f/b.jpg" /></span></a>
+		<li><a>ab_absdiff.png<span><img src="f/ab_absdiff.png" /></span></a>
+		<li><a>ab_absdiff_imscript.png<span><img src="f/ab_absdiff_imscript.png" /></span></a>
+	</ul>
+</div>
+
+<pre class="script">
+olambda {a,b}.jpg "cat(3, x(:,:,1), y(:,:,2))" -o ab_channels.png
+plambda {a,b}.jpg "x[0] y[1] join" -o ab_channels_imscript.png
+</pre>
+
+<div class="gallery selsecond" style="height:321">
+	<ul class="index">
+		<li><a>a.jpg<span><img src="f/a.jpg" /></span></a>
+		<li><a>b.jpg<span><img src="f/b.jpg" /></span></a>
+		<li><a>ab_channels.png<span><img src="f/ab_channels.png" /></span></a>
+		<li><a>ab_channels_imscript.png<span><img src="f/ab_channels_imscript.png" /></span></a>
+	</ul>
+</div>
+
+<p>
+	(This document is a direct rip-off of the imscript tutorial. Credits go to Enric.)
+	</body>
+</html>
+
+<!-- vim: ts=2 sw=2 spell spelllang=en
+-->
