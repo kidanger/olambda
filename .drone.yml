@@ -8,7 +8,7 @@ steps:
   commands:
   - apk update
   - apk add bash make gcc g++ musl-dev libpng-dev jpeg-dev tiff-dev git
-  - apk add octave --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing
+  - apk add octave octave-dev
   - git clone https://github.com/mnhrdt/iio
   - make -C iio/contrib/octave
   - echo "addpath('$PWD/iio/contrib/octave');" >$HOME/.octaverc
