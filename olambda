@@ -79,7 +79,7 @@ for i=1:argc
         otherwise
             imgs{i} = iio_read(arg_list{i});
     end
-    if verbose
+    if verbose && i <= 26
         fprintf(2, ['%c=''%s'' (%d' ...
                     repmat('x%d', [1, length(size(imgs{i}))-1]) ')\n'], ...
             imgs_names(i), arg_list{i}, size(imgs{i}));
@@ -87,7 +87,7 @@ for i=1:argc
 end
 
 preprog = '';
-for i=1:argc
+for i=1:min(26, argc)
     preprog = [preprog imgs_names(i) '=imgs{' int2str(i) '};'];
 end
 prog = regexprep([prog ';'], '(\s|;)*$', ';');
