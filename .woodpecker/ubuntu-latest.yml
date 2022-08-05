@@ -1,0 +1,13 @@
+pipeline:
+  build:
+    image: ubuntu:latest
+    commands:
+    - export DEBIAN_FRONTEND=noninteractive
+    - apt-get update
+    - apt-get install -qq build-essential git octave liboctave-dev
+    - apt-get install -qq libpng-dev libtiff-dev libjpeg-dev
+    - git clone https://github.com/mnhrdt/iio
+    - make -C iio/contrib/octave
+    - echo "addpath('$PWD/iio/contrib/octave');" >$HOME/.octaverc
+    - ./olambda
+    - bash tests/test.sh
