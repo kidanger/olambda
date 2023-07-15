@@ -5,7 +5,7 @@ pipeline:
     - pacman -Syu --noconfirm
     - pacman -S --noconfirm make gcc libpng libtiff libjpeg git octave
     - git clone https://github.com/mnhrdt/iio
-    - make -C iio/contrib/octave
-    - echo "addpath('$PWD/iio/contrib/octave');" >$HOME/.octaverc
+    - make -C iio/interfaces/octave
+    - echo "addpath('$PWD/iio/interfaces/octave');" >$HOME/.octaverc
     - ./olambda
     - bash tests/test.sh
